@@ -1,7 +1,7 @@
 import React from "react";
 import { Map, Marker, TileLayer } from 'react-leaflet';
 
-import { FiArrowLeft, FiPlus } from "react-icons/fi";
+import { FiPlus } from "react-icons/fi";
 
 import '../styles/pages/create-orphanage.css';
 import Sidebar from "../componentes/Sidebar";
