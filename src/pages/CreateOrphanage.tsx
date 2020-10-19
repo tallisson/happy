@@ -9,7 +9,6 @@ import Sidebar from "../componentes/Sidebar";
 import mapIcon from "../utils/mapIcon";
 import api from "../services/api";
 import { useHistory } from 'react-router-dom';
-//import { setPriority } from "os";
 
 export default function CreateOrphanage() {
   const history = useHistory();
@@ -22,6 +21,7 @@ export default function CreateOrphanage() {
   const [open_on_weekends, setOpenOnWeekends] = useState(true);
   const [images, setImages] = useState<File[]>([]);
   const [previewImages, setPreviewImages] = useState<string[]>([]);
+  const [errors, setErrors] = useState<string[]>([]);
 
   function handleMapClick(event: LeafletMouseEvent) {
     const { lat, lng } = event.latlng;
@@ -51,11 +51,18 @@ export default function CreateOrphanage() {
       data.append('images', image)
     });
     
-    await api.post('orphanages', data);
-
-    alert('Cadastro realizado com sucesso!');
-
-    history.push('/app');
+    api.post('orphanages', data).then(res => {
+      console.log(res);
+      alert('Cadastro realizado com sucesso!'); 
+      history.push('/app');
+    })
+    .catch(error => {
+      const { data } = error.response;
+      setErrors(data.errors);
+      if(data.errors.length > 0) {
+        alert('Erros na submissão');
+      }
+    });
   }
 
   function handleSelectImages(event: ChangeEvent<HTMLInputElement>) {
@@ -72,6 +79,10 @@ export default function CreateOrphanage() {
     });
 
     setPreviewImages(selectedImagesPreview);
+  }
+
+  function getErrorMessage(fieldName: string) {    
+    return errors.find(element => element.indexOf(name) !== -1);
   }
 
   return (
@@ -105,7 +116,9 @@ export default function CreateOrphanage() {
             </Map>
 
             <div className="input-block">
-              <label htmlFor="name">Nome</label>
+              <label htmlFor="name">
+                {getErrorMessage('name') ? `Nome (${getErrorMessage('name')})` : `Nome`}
+              </label>
               <input id="name" value={name} onChange={event => setName(event.target.value) } />
             </div>
 
